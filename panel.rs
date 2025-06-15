@@ -5,7 +5,7 @@ use std::f64::consts::PI;
 use libm::{atan2,sin,cos,log,sqrt};
 
 #[pyfunction]
-fn solve(airfoil_coords: Vec<Vec<f64>>, alpha: f64) -> (Vec<Vec<f64>>, Vec<f64>, f64) {
+fn solve(airfoil_coords: Vec<Vec<f64>>, alpha_deg: f64) -> (Vec<Vec<f64>>, Vec<f64>, f64) {
     // Number of points
     let n = airfoil_coords.len(); // Number of panel end points
     let m = n - 1; // Number of control points
@@ -16,7 +16,7 @@ fn solve(airfoil_coords: Vec<Vec<f64>>, alpha: f64) -> (Vec<Vec<f64>>, Vec<f64>,
     let mut pt1: DMatrix<f64> = DMatrix::<f64>::zeros(m, 2); // Start point of panel
     let mut pt2: DMatrix<f64> = DMatrix::<f64>::zeros(m, 2); // End point of panel
     let mut co: DMatrix<f64> = DMatrix::<f64>::zeros(m, 2); // Collocation point
-    let mut co_out: Vec<Vec<f64>> = vec![vec![0.0; 2]; m];
+    let mut co_out: Vec<Vec<f64>> = vec![vec![0.0; 2]; m]; // Collocation point (return format)
     let mut cp: Vec<f64> = vec![0.0; m]; // Surface pressure coefficient
     let mut a: DMatrix<f64> = DMatrix::<f64>::zeros(n, n); // Aerodynamic influence coefficient matrix
     let mut b: DMatrix<f64> = DMatrix::<f64>::zeros(n, n); // Tangential induced velocities (with gammas)
@@ -25,8 +25,31 @@ fn solve(airfoil_coords: Vec<Vec<f64>>, alpha: f64) -> (Vec<Vec<f64>>, Vec<f64>,
     let mut rhs: DMatrix<f64> = DMatrix::<f64>::zeros(n, 1); // Freestream component normal to panel
     let mut v: DMatrix<f64> = DMatrix::<f64>::zeros(m, 1); // Panel tangential velocity
 
+    // Initialize floats
+    let mut xt: f64;
+    let mut zt: f64;
+    let mut x2t: f64;
+    let mut z2t: f64;
+    let mut x: f64;
+    let mut z: f64;
+    let mut x2: f64;
+    let mut r1: f64;
+    let mut r2: f64;
+    let mut th1: f64;
+    let mut th2: f64;
+    let mut u1l: f64;
+    let mut u2l: f64;
+    let mut w1l: f64;
+    let mut w2l: f64;
+    let mut u1: f64;
+    let mut u2: f64;
+    let mut w1: f64;
+    let mut w2: f64;
+    let mut hold_a: f64 = 0.0;
+    let mut hold_b: f64 = 0.0;
+
     // Angle of attack in radians
-    let al = alpha * PI / 180.0;
+    let al = alpha_deg * PI / 180.0;
 
     // Read in x/c and y/c panel end point positions from airfoil coordinates
     for i in 0..n {
@@ -66,27 +89,6 @@ fn solve(airfoil_coords: Vec<Vec<f64>>, alpha: f64) -> (Vec<Vec<f64>>, Vec<f64>,
     }
 
     // Determine influence coefficients
-    let mut xt: f64;
-    let mut zt: f64;
-    let mut x2t: f64;
-    let mut z2t: f64;
-    let mut x: f64;
-    let mut z: f64;
-    let mut x2: f64;
-    let mut r1: f64;
-    let mut r2: f64;
-    let mut th1: f64;
-    let mut th2: f64;
-    let mut u1l: f64;
-    let mut u2l: f64;
-    let mut w1l: f64;
-    let mut w2l: f64;
-    let mut u1: f64;
-    let mut u2: f64;
-    let mut w1: f64;
-    let mut w2: f64;
-    let mut hold_a: f64 = 0.0;
-    let mut hold_b: f64 = 0.0;
     for i in 0..m {
         for j in 0..m {
             // Determine location of collocation point i in terms of panel j coordinates
@@ -165,9 +167,9 @@ fn solve(airfoil_coords: Vec<Vec<f64>>, alpha: f64) -> (Vec<Vec<f64>>, Vec<f64>,
     a[(n-1, n-1)] = 1.0;
 
     // Invert "a" matrix to solve for gammas
-    let a_inv: DMatrix<f64> = a.try_inverse().expect("REASON");
+    let a_inv: DMatrix<f64> = a.try_inverse().expect("Matrix should be invertible");
     let g: DMatrix<f64> = a_inv * rhs;
-    
+
     // With known gammas, solve for Cl, Cps
     let mut cl: f64 = 0.0;
     let mut vel: f64;
@@ -182,9 +184,8 @@ fn solve(airfoil_coords: Vec<Vec<f64>>, alpha: f64) -> (Vec<Vec<f64>>, Vec<f64>,
     for i in 0..m {
         cp[i] = 1.0 - v[(i, 0)].powf(2.0);
     }
-    // let tuple = PyTuple::new(py, &[co_out.to_object(py), cp.to_object(py), cl.to_object(py)]);
 
-    // Ok(tuple)
+    // Return the result
     (co_out, cp, cl)
 }
 
