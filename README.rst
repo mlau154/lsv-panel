@@ -34,16 +34,30 @@ Usage
 
 The following Python script can be executed assuming you have a Selig-format
 airfoil coordinate file called ``"n0012-il.txt"`` located in the same 
-directory.
+directory. This prints the lift coefficient and plots the pressure
+coefficient distribution as a function of :math:`x`
 
 .. code-block:: python
 
     import lsv_panel
+    import matplotlib.pyplot as plt
     import numpy as np
     import os
     file_name = os.path.join("n0012-il.txt")
     coords = np.loadtxt(file_name, skiprows=1)
-    co, cp, cl = lsv_panel.solve(coords, -3.0)
+    co, cp, cl = lsv_panel.solve(coords, alpha_deg=5.0)
+    print(f"{cl:.4f = }")
+    plt.plot(co[:, 0], cp, color="steelblue")
+    plt.xlabel(r"$x/c$")
+    plt.ylabel(r"$C_p$")
+    plt.show()
+
+.. important::
+
+    The third-party libraries ``numpy`` and ``matplotlib`` are not included
+    in the base installation to minimize required storage space. To
+    include these libraries in the installation, use
+    ``uv pip install lsv-panel[dev]``
 
 The airfoil coordinate file should look something like the following. Of
 course, the line of code that loads the coordinates could be modified
