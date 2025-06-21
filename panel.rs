@@ -4,8 +4,8 @@ use na::{DMatrix};
 use std::f64::consts::PI;
 use libm::{atan2,sin,cos,log,sqrt};
 
-#[pyfunction]
-fn solve(airfoil_coords: Vec<Vec<f64>>, alpha_deg: f64) -> (Vec<Vec<f64>>, Vec<f64>, f64) {
+
+fn solve_rs(airfoil_coords: &Vec<Vec<f64>>, alpha_deg: f64) -> (Vec<Vec<f64>>, Vec<f64>, f64) {
     // Number of points
     let n = airfoil_coords.len(); // Number of panel end points
     let m = n - 1; // Number of control points
@@ -189,8 +189,33 @@ fn solve(airfoil_coords: Vec<Vec<f64>>, alpha_deg: f64) -> (Vec<Vec<f64>>, Vec<f
     (co_out, cp, cl)
 }
 
+
+#[pyfunction]
+fn solve(airfoil_coords: Vec<Vec<f64>>, alpha_deg: f64) -> (Vec<Vec<f64>>, Vec<f64>, f64) {
+    return solve_rs(&airfoil_coords, alpha_deg);
+}
+
+
+#[pyfunction]
+fn sweep_alpha(airfoil_coords: Vec<Vec<f64>>, alpha_deg: Vec<f64>) -> (Vec<Vec<Vec<f64>>>, Vec<Vec<f64>>, Vec<f64>) {
+    let mut co_list: Vec<Vec<Vec<f64>>> = Vec::new();
+    let mut cp_list: Vec<Vec<f64>> = Vec::new();
+    let mut cl_list: Vec<f64> = Vec::new();
+    for alpha in alpha_deg.into_iter() {
+        let analysis_result = solve_rs(&airfoil_coords, alpha);
+        co_list.push(analysis_result.0);
+        cp_list.push(analysis_result.1);
+        cl_list.push(analysis_result.2);
+    }
+
+    // Return the result
+    (co_list, cp_list, cl_list)
+}
+
+
 #[pymodule]
 fn lsv_panel(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(solve, m)?)?;
+    m.add_function(wrap_pyfunction!(sweep_alpha, m)?)?;
     Ok(())
 }
