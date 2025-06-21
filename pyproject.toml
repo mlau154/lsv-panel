@@ -21,9 +21,7 @@ build = [
 ]
 dev = [
     "maturin", 
-    "pytest",
+    "matplotlib",
     "numpy>=1.8",
-    "pydata-sphinx-theme",
-    "sphinx-design",
-    "sphinx-autoapi"
+    "pytest",
 ]

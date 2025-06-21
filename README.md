@@ -41,7 +41,7 @@ import os
 file_name = os.path.join("n0012-il.txt")
 coords = np.loadtxt(file_name, skiprows=1)
 co, cp, cl = lsv_panel.solve(coords, alpha_deg=5.0)
-print(f"{cl:.4f = }")
+print(f"{cl = :.4f}")
 plt.plot(co[:, 0], cp, color="steelblue")
 plt.xlabel(r"$x/c$")
 plt.ylabel(r"$C_p$")
