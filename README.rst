@@ -57,3 +57,11 @@ to accomodate different coordinate formats.
     ...       ...
     0.999416 -0.001342
     1.000000 -0.001260
+
+The outputs of the ``solve`` function have the following meanings:
+
+#. ``co``: The collocation points of the panel method (the midpoint of
+   each airfoil coordinate panel). The data type is a list of lists.
+#. ``cp``: The pressure coefficient at each collocation point.
+   The data type is a list.
+#. ``cl``: The lift coefficient. The data type is a float.
