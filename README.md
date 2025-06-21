@@ -48,11 +48,11 @@ plt.ylabel(r"$C_p$")
 plt.show()
 ```
 
-[!IMPORTANT]
-The third-party libraries `numpy` and `matplotlib` are not included
-in the base installation to minimize required storage space. To
-include these libraries in the installation, use
-`uv pip install lsv-panel[dev]`
+> [!IMPORTANT]
+> The third-party libraries `numpy` and `matplotlib` are not included
+  in the base installation to minimize required storage space. To
+  include these libraries in the installation, use
+  `uv pip install lsv-panel[dev]`
 
 The airfoil coordinate file should look something like the following. Of
 course, the line of code that loads the coordinates could be modified
