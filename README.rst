@@ -39,6 +39,8 @@ directory.
 .. code-block:: python
 
     import lsv_panel
+    import numpy as np
+    import os
     file_name = os.path.join("n0012-il.txt")
     coords = np.loadtxt(file_name, skiprows=1)
     co, cp, cl = lsv_panel.solve(coords, -3.0)
